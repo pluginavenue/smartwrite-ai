@@ -3,7 +3,7 @@
  * Plugin Name: SmartWrite AI
  * Description: An AI-powered content assistant that helps you write intros, summaries, meta descriptions, and more — right inside your WordPress editor.
  * Plugin URI: https://pluginavenue.com/plugins/smartwrite-ai
- * Author: Plugin Avenue
+ * Author: Plugin Avenue, Stephen Moore
  * Author URI: https://pluginavenue.com
  * Version: 1.0.0
  * Requires at least: 5.8
