@@ -27,7 +27,7 @@ define('SMARTWRITE_AI_URL', plugin_dir_url(__FILE__));
 require_once SMARTWRITE_AI_PATH . 'includes/enqueue-assets.php';
 require_once SMARTWRITE_AI_PATH . 'includes/admin-settings.php';
 require_once SMARTWRITE_AI_PATH . 'includes/ai-functions.php';
-require_once SMARTWRITE_AI_PATH . 'includes/content-hooks.php';
+require_once SMARTWRITE_AI_PATH . 'includes/classic-editor.php';
 
 // Add settings link on plugin page
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function($links) {
