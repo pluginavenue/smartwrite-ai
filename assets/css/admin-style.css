@@ -1,0 +1,8 @@
+#smartwrite-ai-box textarea {
+  font-family: monospace;
+}
+#smartwrite-ai-box #smartwrite-output {
+  background: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #ddd;
+}

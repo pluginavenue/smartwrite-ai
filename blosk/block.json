@@ -1,0 +1,9 @@
+{
+  "apiVersion": 2,
+  "name": "smartwrite/test",
+  "title": "SmartWrite Test Block",
+  "category": "widgets",
+  "icon": "edit",
+  "description": "Generate AI content using SmartWrite",
+  "editorScript": "smartwrite-main-block"
+}
