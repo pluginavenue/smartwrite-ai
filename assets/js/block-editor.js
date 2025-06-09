@@ -1,12 +1,13 @@
 (function (wp) {
   const { registerPlugin } = wp.plugins;
   const { PluginSidebar, PluginSidebarMoreMenuItem } = wp.editor;
+  const { PluginDocumentSettingPanel } = wp.editPost;
   const { PanelBody, Button, TextareaControl, Spinner } = wp.components;
   const { createElement, useState } = wp.element;
   const { apiFetch } = wp;
   const { dispatch, select } = wp.data;
 
-  const SmartWriteSidebar = () => {
+  const SmartWritePanel = () => {
     const [prompt, setPrompt] = useState("");
     const [output, setOutput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -18,8 +19,6 @@
       setOutput("");
       setLastAction("generate");
 
-      console.log("🧠 Sending prompt to SmartWrite:", prompt);
-
       apiFetch({
         path: "/smartwrite/v1/generate",
         method: "POST",
@@ -30,7 +29,6 @@
         body: JSON.stringify({ prompt }),
       })
         .then((res) => {
-          console.log("✅ SmartWrite API response:", res);
           if (res.success) {
             setOutput(res.data);
           } else {
@@ -38,7 +36,6 @@
           }
         })
         .catch((err) => {
-          console.error("❌ SmartWrite fetch error:", err);
           setOutput("Error: " + err.message);
         })
         .finally(() => {
@@ -56,8 +53,6 @@
       setLoading(true);
       setOutput("");
       setLastAction("meta");
-
-      console.log("💡 Suggesting meta for:", title);
 
       apiFetch({
         path: "/smartwrite/v1/generate",
@@ -78,7 +73,6 @@
           }
         })
         .catch((err) => {
-          console.error("❌ Meta Suggestion error:", err);
           setOutput("Error: " + err.message);
         })
         .finally(() => {
@@ -123,6 +117,79 @@
       }
     };
 
+    const content = createElement(
+      PanelBody,
+      { title: "SmartWrite AI", initialOpen: true },
+      createElement(TextareaControl, {
+        label: "Prompt",
+        value: prompt,
+        onChange: (value) => setPrompt(value),
+        __nextHasNoMarginBottom: true,
+      }),
+      createElement(
+        "div",
+        { style: { display: "flex", gap: "8px", marginTop: "10px" } },
+        createElement(
+          Button,
+          {
+            isPrimary: true,
+            onClick: generateContent,
+            disabled: loading || !prompt,
+          },
+          "Generate"
+        )
+      ),
+      createElement(
+        "div",
+        { style: { marginTop: "10px" } },
+        createElement(
+          Button,
+          {
+            isSecondary: true,
+            onClick: suggestMetaDescription,
+            disabled: loading,
+          },
+          "Suggest Meta Description"
+        )
+      ),
+      loading && createElement(Spinner, null),
+      output &&
+        createElement(
+          "div",
+          { style: { marginTop: "15px" } },
+          createElement(
+            "div",
+            {
+              style: {
+                whiteSpace: "pre-wrap",
+                background: "#f3f4f6",
+                padding: "10px",
+                borderRadius: "4px",
+                marginBottom: "10px",
+              },
+            },
+            output
+          ),
+          lastAction === "meta"
+            ? createElement(
+                Button,
+                {
+                  isSecondary: true,
+                  onClick: () => copyToClipboard(output),
+                },
+                copied ? "Copied!" : "Copy Meta Description"
+              )
+            : createElement(
+                Button,
+                {
+                  isSecondary: true,
+                  onClick: insertIntoEditor,
+                },
+                "Insert into Editor"
+              )
+        )
+    );
+
     return createElement(
       wp.element.Fragment,
       null,
@@ -134,84 +201,22 @@
       createElement(
         PluginSidebar,
         { name: "smartwrite-sidebar", title: "SmartWrite AI" },
-        createElement(
-          PanelBody,
-          { title: "Content Generator", initialOpen: true },
-          createElement(TextareaControl, {
-            label: "Prompt",
-            value: prompt,
-            onChange: (value) => setPrompt(value),
-            __nextHasNoMarginBottom: true,
-          }),
-          createElement(
-            "div",
-            { style: { display: "flex", gap: "8px", marginTop: "10px" } },
-            createElement(
-              Button,
-              {
-                isPrimary: true,
-                onClick: generateContent,
-                disabled: loading || !prompt,
-              },
-              "Generate"
-            )
-          ),
-          createElement(
-            "div",
-            { style: { marginTop: "10px" } },
-            createElement(
-              Button,
-              {
-                isSecondary: true,
-                onClick: suggestMetaDescription,
-                disabled: loading,
-              },
-              "Suggest Meta Description"
-            )
-          ),
-          loading && createElement(Spinner, null),
-          output &&
-            createElement(
-              "div",
-              { style: { marginTop: "15px" } },
-              createElement(
-                "div",
-                {
-                  style: {
-                    whiteSpace: "pre-wrap",
-                    background: "#f3f4f6",
-                    padding: "10px",
-                    borderRadius: "4px",
-                    marginBottom: "10px",
-                  },
-                },
-                output
-              ),
-              lastAction === "meta"
-                ? createElement(
-                    Button,
-                    {
-                      isSecondary: true,
-                      onClick: () => copyToClipboard(output),
-                    },
-                    copied ? "Copied!" : "Copy Meta Description"
-                  )
-                : createElement(
-                    Button,
-                    {
-                      isSecondary: true,
-                      onClick: insertIntoEditor,
-                    },
-                    "Insert into Editor"
-                  )
-            )
-        )
+        content
+      ),
+      createElement(
+        PluginDocumentSettingPanel,
+        {
+          name: "smartwrite-main",
+          title: "SmartWrite AI",
+          icon: "edit",
+        },
+        content
       )
     );
   };
 
   registerPlugin("smartwrite-sidebar", {
-    render: SmartWriteSidebar,
+    render: SmartWritePanel,
     icon: "edit",
   });
 })(window.wp);
