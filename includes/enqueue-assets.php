@@ -1,11 +1,11 @@
-<?php
+<?php 
 if (!defined('ABSPATH')) exit;
 
 // Enqueue Classic Editor support
 add_action('admin_enqueue_scripts', function ($hook) {
     if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
 
-    // For classic metabox
+    // Enqueue AI script
     wp_enqueue_script(
         'smartwrite-ai-editor',
         SMARTWRITE_AI_URL . 'assets/js/editor-ai.js',
@@ -14,7 +14,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
         true
     );
 
-    wp_localize_script('smartwrite-ai-editor', 'SmartWriteAI', [
+    // Localize data for JS (nonce, ajax URL, etc.)
+    wp_localize_script('smartwrite-ai-editor', 'smartwrite_ai', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce'    => wp_create_nonce('smartwrite_ai_nonce'),
     ]);
@@ -35,7 +36,7 @@ add_action('enqueue_block_editor_assets', function () {
         'nonce' => wp_create_nonce('wp_rest'),
     ]);
 
-   // Register main block script for use via block.json
+    // Optional: block script (only if you have block.json using this)
     wp_register_script(
         'smartwrite-main-block',
         SMARTWRITE_AI_URL . 'assets/js/block.js',

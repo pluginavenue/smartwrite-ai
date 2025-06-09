@@ -42,9 +42,9 @@ add_action('plugins_loaded', function () {
 });
 
 // Register block using block.json
-add_action('init', function () {
-    register_block_type(__DIR__ . '/block');
-});
+// add_action('init', function () {
+//     register_block_type(__DIR__ . '/block');
+// });
 
 // ✅ Enqueue admin styles for Classic Editor metabox
 add_action('admin_enqueue_scripts', function ($hook) {

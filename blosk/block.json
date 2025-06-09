@@ -1,6 +1,6 @@
 {
   "apiVersion": 2,
-  "name": "smartwrite/test",
+  "name": "smartwrite/block",
   "title": "SmartWrite Test Block",
   "category": "widgets",
   "icon": "edit",

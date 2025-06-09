@@ -1,42 +1,76 @@
 jQuery(document).ready(function ($) {
-  const $generateBtn = $("#smartwrite-generate");
-  const $promptInput = $("#smartwrite-prompt");
-  const $responseBox = $("#smartwrite-output");
+  console.log("SmartWrite script loaded (Block Editor Only)");
 
-  $generateBtn.on("click", function () {
-    const prompt = $promptInput.val().trim();
+  let latestOutput = "";
 
+  $("#smartwrite-generate").on("click", function () {
+    console.log("Generate clicked");
+
+    const prompt = $("#smartwrite-prompt").val().trim();
     if (!prompt) {
-      $responseBox.html("<em>Please enter a prompt first.</em>");
+      alert("Please enter a prompt.");
       return;
     }
 
-    $generateBtn.prop("disabled", true).text("Generating... ⏳");
-    $responseBox.html("<em>Generating content...</em>");
+    $("#smartwrite-output").text("Generating...");
+    $("#smartwrite-generate").prop("disabled", true);
 
-    $.ajax({
-      url: SmartWriteAI.ajax_url,
-      method: "POST",
-      dataType: "json",
-      data: {
-        action: "smartwrite_ai_generate",
-        prompt: prompt,
-        nonce: SmartWriteAI.nonce,
-      },
-      success: function (res) {
-        if (res.success) {
-          const aiResponse = res.data;
-          $responseBox.html(`<strong>AI Response:</strong><br>${aiResponse}`);
+    $.post(smartwrite_ai.ajax_url, {
+      action: "smartwrite_ai_generate",
+      prompt: prompt,
+      nonce: smartwrite_ai.nonce,
+    })
+      .done(function (response) {
+        console.log("AJAX response:", response);
+        if (response.success) {
+          latestOutput = response.data;
+          $("#smartwrite-output").text(latestOutput);
+
+          if ($("#smartwrite-insert").length === 0) {
+            const insertBtn = $("<button>", {
+              id: "smartwrite-insert",
+              class: "components-button is-primary",
+              text: "Insert into Editor",
+              style: "margin-top: 10px; display: block;",
+            });
+            $("#smartwrite-output").after(insertBtn);
+          }
         } else {
-          $responseBox.html(`<em>Error:</em> ${res.data}`);
+          $("#smartwrite-output").text("Error: " + response.data);
         }
-      },
-      error: function () {
-        $responseBox.html("<em>Something went wrong. Please try again.</em>");
-      },
-      complete: function () {
-        $generateBtn.prop("disabled", false).text("Generate");
-      },
-    });
+      })
+      .fail(function () {
+        console.error("AJAX call failed");
+        $("#smartwrite-output").text("AJAX error");
+      })
+      .always(function () {
+        $("#smartwrite-generate").prop("disabled", false);
+      });
+  });
+
+  $(document).on("click", "#smartwrite-insert", function () {
+    console.log("Insert button clicked");
+
+    if (!latestOutput) {
+      console.warn("No latest output to insert");
+      return;
+    }
+
+    // === Block Editor (Force only)
+    if (
+      typeof wp !== "undefined" &&
+      wp.data &&
+      wp.data.dispatch &&
+      wp.blocks &&
+      wp.blocks.createBlock
+    ) {
+      console.log("✅ Forcing insertion into Block Editor");
+      const block = wp.blocks.createBlock("core/paragraph", {
+        content: latestOutput,
+      });
+      wp.data.dispatch("core/block-editor").insertBlocks(block);
+    } else {
+      console.warn("❌ Block Editor not detected – cannot insert");
+    }
   });
 });
