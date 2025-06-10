@@ -41,11 +41,12 @@ jQuery(document).ready(function ($) {
       });
   });
 
-  // ✅ Add "Suggest Meta Description" button below Generate
+  // Add "Suggest Meta Description" button if not already present
   if ($("#smartwrite-meta").length === 0) {
     const metaBtn = $("<button>", {
       id: "smartwrite-meta",
-      class: "components-button is-secondary",
+      type: "button",
+      class: "button button-secondary",
       text: "Suggest Meta Description",
       style: "margin-top: 10px; display: block;",
     });
@@ -55,7 +56,20 @@ jQuery(document).ready(function ($) {
   $(document).on("click", "#smartwrite-meta", function () {
     console.log("Meta Description clicked");
 
-    const title = wp.data.select("core/editor").getEditedPostAttribute("title");
+    let title = "";
+
+    if (
+      typeof wp !== "undefined" &&
+      wp.data &&
+      wp.data.select &&
+      wp.data.select("core/editor") &&
+      typeof wp.data.select("core/editor").getEditedPostAttribute === "function"
+    ) {
+      title = wp.data.select("core/editor").getEditedPostAttribute("title");
+    } else {
+      title = $('input[name="post_title"]').val(); // Classic Editor fallback
+    }
+
     if (!title) {
       alert("Post title is empty.");
       return;
@@ -95,7 +109,8 @@ jQuery(document).ready(function ($) {
     if (lastAction === "meta") {
       const copyBtn = $("<button>", {
         id: "smartwrite-copy",
-        class: "components-button is-primary",
+        type: "button",
+        class: "button button-primary",
         text: "Copy Meta Description",
         style: "margin-top: 10px; display: block;",
       });
@@ -103,7 +118,8 @@ jQuery(document).ready(function ($) {
     } else {
       const insertBtn = $("<button>", {
         id: "smartwrite-insert",
-        class: "components-button is-primary",
+        type: "button",
+        class: "button button-primary",
         text: "Insert into Editor",
         style: "margin-top: 10px; display: block;",
       });
@@ -131,7 +147,13 @@ jQuery(document).ready(function ($) {
       });
       wp.data.dispatch("core/block-editor").insertBlocks(block);
     } else {
-      console.warn("Block Editor not detected – cannot insert");
+      const editor = document.querySelector("#content");
+      if (editor) {
+        editor.value += "\n\n" + latestOutput;
+        alert("Content inserted into classic editor.");
+      } else {
+        console.warn("Editor not found");
+      }
     }
   });
 
@@ -142,14 +164,26 @@ jQuery(document).ready(function ($) {
 
     const btn = $("#smartwrite-copy");
 
+    // 🛡️ Temporarily disable onbeforeunload
+    const originalBeforeUnload = window.onbeforeunload;
+    window.onbeforeunload = null;
+
+    const restoreUnload = () => {
+      setTimeout(() => {
+        window.onbeforeunload = originalBeforeUnload;
+      }, 2000);
+    };
+
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(latestOutput).then(
         () => {
           btn.text("Copied!");
+          restoreUnload();
           setTimeout(() => btn.text("Copy Meta Description"), 2000);
         },
         () => {
           btn.text("❌ Copy failed");
+          restoreUnload();
           setTimeout(() => btn.text("Copy Meta Description"), 2000);
         }
       );
@@ -166,8 +200,9 @@ jQuery(document).ready(function ($) {
       } catch (err) {
         btn.text("❌ Copy failed");
       }
-      setTimeout(() => btn.text("Copy Meta Description"), 2000);
       document.body.removeChild(textarea);
+      restoreUnload();
+      setTimeout(() => btn.text("Copy Meta Description"), 2000);
     }
   });
 });
