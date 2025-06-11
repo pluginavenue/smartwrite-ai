@@ -8,6 +8,7 @@
   border: 1px solid #ddd;
 }
 
+/* ✅ Success Notice */
 .smartwrite-notice {
   background: #e7fbe7;
   border: 1px solid #7ddc7d;
@@ -18,25 +19,7 @@
   font-weight: bold;
 }
 
-/* Dark mode for .smartwrite-notice */
-body.wp-admin.theme-dark .smartwrite-notice {
-  background: #193d19;
-  border-color: #339933;
-  color: #ccffcc;
-}
-
-/* Dark mode for #smartwrite-output */
-body.wp-admin.theme-dark #smartwrite-ai-box #smartwrite-output {
-  background: #1e1e1e;
-  border-color: #333;
-  color: #ddd;
-}
-
-/* Button spacing inside SmartWrite AI box */
-#smartwrite-ai-box button {
-  margin-top: 8px;
-}
-
+/* ✅ Pro Upgrade CTA Box */
 .smartwrite-upgrade-box {
   border: 1px solid #ccd0d4;
   padding: 20px;
@@ -47,15 +30,52 @@ body.wp-admin.theme-dark #smartwrite-ai-box #smartwrite-output {
 
 .smartwrite-upgrade-box h2 {
   margin-top: 0;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.smartwrite-upgrade-box p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.smartwrite-upgrade-box ul {
+  list-style: none;
+  padding-left: 1em;
+  margin-bottom: 15px;
+}
+
+.smartwrite-upgrade-box ul li {
+  margin-bottom: 6px;
+  font-size: 13px;
 }
 
 .smartwrite-upgrade-box .button {
-  margin-top: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 6px 14px;
+  text-decoration: none;
 }
 
-/* Dark mode for upgrade box */
+/* 🌒 Dark mode support */
+body.wp-admin.theme-dark #smartwrite-ai-box #smartwrite-output {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #eee;
+}
+
+body.wp-admin.theme-dark .smartwrite-notice {
+  background: #294d2d;
+  border-color: #4caf50;
+  color: #dfffe0;
+}
+
 body.wp-admin.theme-dark .smartwrite-upgrade-box {
   background: #222;
   border-color: #444;
   color: #eee;
+}
+
+body.wp-admin.theme-dark .smartwrite-upgrade-box ul li {
+  color: #ccc;
 }

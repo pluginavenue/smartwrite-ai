@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 // Register settings
 add_action('admin_init', function () {
     register_setting('smartwrite_settings_group', 'smartwrite_api_key');
-    register_setting('smartwrite_settings_group', 'smartwrite_model'); // <-- Add this
+    register_setting('smartwrite_settings_group', 'smartwrite_model');
 });
 
 // Add settings page to Settings menu
@@ -48,6 +48,23 @@ function smartwrite_render_settings_page() {
             </table>
             <?php submit_button(); ?>
         </form>
+
+        <?php if ( ! defined( 'SMARTWRITE_PRO_VERSION' ) ) : ?>
+            <div class="smartwrite-upgrade-box">
+                <h2>Upgrade to SmartWrite Pro 🚀</h2>
+                <p>Unlock advanced AI controls, tone settings, blog outlines, SEO tools, and more to supercharge your content workflow.</p>
+                <ul>
+                    <li>🧠 Control tone and writing style</li>
+                    <li>📝 Generate full blog post outlines</li>
+                    <li>📈 Built-in SEO tools and templates</li>
+                    <li>⚡ Faster, priority API access</li>
+                    <li>💼 Commercial use license</li>
+                </ul>
+                <a href="https://pluginavenue.com/checkout/smartwrite-pro" class="button button-primary" target="_blank">
+                    Upgrade to Pro
+                </a>
+            </div>
+        <?php endif; ?>
     </div>
     <?php
 }
