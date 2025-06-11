@@ -31,7 +31,7 @@ require_once SMARTWRITE_AI_PATH . 'includes/classic-editor.php';
 
 // Add settings link on plugin page
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
-    $settings_link = '<a href="' . admin_url('options-general.php?page=smartwrite_ai') . '">Settings</a>';
+   $settings_link = '<a href="' . admin_url('options-general.php?page=smartwrite-ai') . '">Settings</a>';
     array_unshift($links, $settings_link);
     return $links;
 });
@@ -66,4 +66,28 @@ add_action('enqueue_block_editor_assets', function () {
     wp_localize_script('smartwrite-editor-sidebar', 'SmartWriteBlockData', [
         'nonce' => wp_create_nonce('wp_rest'),
     ]);
+});
+
+add_action('admin_notices', function () {
+    if (get_option('smartwrite_notice_dismissed')) return;
+
+    ?>
+    <div class="notice notice-info is-dismissible smartwrite-admin-notice">
+        <p><strong>SmartWrite AI is ready!</strong> Enter your API key in <a href="options-general.php?page=smartwrite-ai">Settings</a> to begin using AI in your posts.</p>
+    </div>
+    <script>
+      jQuery(document).on('click', '.smartwrite-admin-notice .notice-dismiss', function () {
+        jQuery.post(ajaxurl, {
+          action: 'smartwrite_dismiss_notice',
+          nonce: '<?php echo wp_create_nonce('smartwrite_dismiss'); ?>'
+        });
+      });
+    </script>
+    <?php
+});
+
+add_action('wp_ajax_smartwrite_dismiss_notice', function () {
+    check_ajax_referer('smartwrite_dismiss', 'nonce');
+    update_option('smartwrite_notice_dismissed', true);
+    wp_send_json_success();
 });

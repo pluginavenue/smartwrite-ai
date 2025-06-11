@@ -49,22 +49,34 @@ function smartwrite_render_settings_page() {
             <?php submit_button(); ?>
         </form>
 
-        <?php if ( ! defined( 'SMARTWRITE_PRO_VERSION' ) ) : ?>
-            <div class="smartwrite-upgrade-box">
-                <h2>Upgrade to SmartWrite Pro 🚀</h2>
-                <p>Unlock advanced AI controls, tone settings, blog outlines, SEO tools, and more to supercharge your content workflow.</p>
+       <?php if ( ! defined( 'SMARTWRITE_PRO_VERSION' ) ) : ?>
+            <div class="smartwrite-pro-cta">
+                <h2><span class="emoji">💡</span> Upgrade to SmartWrite Pro</h2>
                 <ul>
-                    <li>🧠 Control tone and writing style</li>
-                    <li>📝 Generate full blog post outlines</li>
-                    <li>📈 Built-in SEO tools and templates</li>
-                    <li>⚡ Faster, priority API access</li>
-                    <li>💼 Commercial use license</li>
+                <li>✍️ Write with tone, length, and detail controls</li>
+                <li>🧭 Create outlines, intros, conclusions & more</li>
+                <li>📊 Optimize for SEO with meta tools</li>
+                <li>🚀 Use GPT-4 with smarter prompt shaping</li>
+                <li>📂 Get commercial license and priority access</li>
                 </ul>
-                <a href="https://pluginavenue.com/checkout/smartwrite-pro" class="button button-primary" target="_blank">
-                    Upgrade to Pro
+                <a href="https://pluginavenue.com/checkout/smartwrite-pro" target="_blank" class="smartwrite-pro-btn">
+                Learn More →
                 </a>
             </div>
         <?php endif; ?>
+
+        <hr style="margin: 40px 0;">
+        
+        <div class="smartwrite-help">
+            <h2>📘 Help & Documentation</h2>
+            <p>Need help using SmartWrite AI? Explore these resources:</p>
+            <ul>
+                <li>🧠 <a href="https://pluginavenue.com/docs/smartwrite-ai/" target="_blank">Using SmartWrite AI</a></li>
+                <li>🔑 <a href="https://platform.openai.com/account/api-keys" target="_blank">How to get your OpenAI API key</a></li>
+                <li>❓ <a href="https://wordpress.org/plugins/smartwrite-ai/#faq" target="_blank">Frequently Asked Questions</a></li>
+                <li>💬 <a href="mailto:support@pluginavenue.com">Contact Plugin Avenue Support</a></li>
+            </ul>
+        </div>
     </div>
     <?php
 }
