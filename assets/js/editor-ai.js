@@ -2,15 +2,21 @@ jQuery(document).ready(function ($) {
   console.log("SmartWrite script loaded (Block Editor Only)");
 
   let latestOutput = "";
-  let lastAction = ""; // 'generate' or 'meta'
+  let lastAction = "";
 
   $("#smartwrite-generate").on("click", function () {
     console.log("Generate clicked");
 
-    const prompt = $("#smartwrite-prompt").val().trim();
+    let prompt = $("#smartwrite-prompt").val().trim();
     if (!prompt) {
       alert("Please enter a prompt.");
       return;
+    }
+
+    if (/^(\s*[-*•]\s|\s*\d+\.)/m.test(prompt)) {
+      prompt =
+        "Expand the following bullet points into a well-written paragraph:\n" +
+        prompt;
     }
 
     $("#smartwrite-output").text("Generating...");
@@ -41,7 +47,6 @@ jQuery(document).ready(function ($) {
       });
   });
 
-  // Add "Suggest Meta Description" button if not already present
   if ($("#smartwrite-meta").length === 0) {
     const metaBtn = $("<button>", {
       id: "smartwrite-meta",
@@ -67,7 +72,7 @@ jQuery(document).ready(function ($) {
     ) {
       title = wp.data.select("core/editor").getEditedPostAttribute("title");
     } else {
-      title = $('input[name="post_title"]').val(); // Classic Editor fallback
+      title = $('input[name="post_title"]').val();
     }
 
     if (!title) {
@@ -135,24 +140,46 @@ jQuery(document).ready(function ($) {
       return;
     }
 
-    if (
+    const isBlockEditor =
       typeof wp !== "undefined" &&
       wp.data &&
-      wp.data.dispatch &&
-      wp.blocks &&
-      wp.blocks.createBlock
-    ) {
-      const block = wp.blocks.createBlock("core/paragraph", {
-        content: latestOutput,
-      });
-      wp.data.dispatch("core/block-editor").insertBlocks(block);
+      typeof wp.data.select === "function" &&
+      typeof wp.data.select("core/editor")?.getCurrentPostId === "function";
+
+    const notice = $("<div>")
+      .addClass("smartwrite-notice")
+      .text("✅ Content inserted into editor!");
+
+    if (isBlockEditor) {
+      try {
+        const block = wp.blocks.createBlock("core/paragraph", {
+          content: latestOutput,
+        });
+        wp.data.dispatch("core/block-editor").insertBlocks(block);
+        $("#smartwrite-output").after(notice);
+        setTimeout(() => notice.fadeOut(300, () => notice.remove()), 2000);
+      } catch (err) {
+        console.error("Block Editor insert failed:", err);
+        alert("Failed to insert block.");
+      }
     } else {
       const editor = document.querySelector("#content");
       if (editor) {
-        editor.value += "\n\n" + latestOutput;
-        alert("Content inserted into classic editor.");
+        if (window.tinymce && tinymce.get("content")) {
+          tinymce
+            .get("content")
+            .execCommand(
+              "mceInsertContent",
+              false,
+              "<p>" + latestOutput + "</p>"
+            );
+        } else {
+          editor.value += "\n\n" + latestOutput;
+        }
+        $("#smartwrite-output").after(notice);
+        setTimeout(() => notice.fadeOut(300, () => notice.remove()), 2000);
       } else {
-        console.warn("Editor not found");
+        console.warn("Classic editor not found");
       }
     }
   });
@@ -163,8 +190,6 @@ jQuery(document).ready(function ($) {
     if (!latestOutput) return;
 
     const btn = $("#smartwrite-copy");
-
-    // 🛡️ Temporarily disable onbeforeunload
     const originalBeforeUnload = window.onbeforeunload;
     window.onbeforeunload = null;
 

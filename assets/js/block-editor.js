@@ -13,6 +13,7 @@
     const [loading, setLoading] = useState(false);
     const [lastAction, setLastAction] = useState(""); // 'generate' or 'meta'
     const [copied, setCopied] = useState(false);
+    const [insertNotice, setInsertNotice] = useState(false); // ✅ new
 
     const generateContent = () => {
       setLoading(true);
@@ -82,11 +83,18 @@
 
     const insertIntoEditor = () => {
       if (!output) return;
-      dispatch("core/block-editor").insertBlocks(
-        wp.blocks.createBlock("core/paragraph", {
-          content: output,
-        })
-      );
+
+      try {
+        dispatch("core/block-editor").insertBlocks(
+          wp.blocks.createBlock("core/paragraph", {
+            content: output,
+          })
+        );
+        setInsertNotice(true); // ✅ show success
+        setTimeout(() => setInsertNotice(false), 2000);
+      } catch (err) {
+        console.error("Insert failed:", err);
+      }
     };
 
     const copyToClipboard = (text) => {
@@ -186,7 +194,13 @@
                   onClick: insertIntoEditor,
                 },
                 "Insert into Editor"
-              )
+              ),
+          insertNotice &&
+            createElement(
+              "div",
+              { className: "smartwrite-notice" },
+              "✅ Content inserted into editor!"
+            )
         )
     );
 

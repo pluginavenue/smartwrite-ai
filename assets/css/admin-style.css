@@ -1,8 +1,61 @@
 #smartwrite-ai-box textarea {
   font-family: monospace;
 }
+
 #smartwrite-ai-box #smartwrite-output {
   background: #f9f9f9;
   padding: 10px;
   border: 1px solid #ddd;
+}
+
+.smartwrite-notice {
+  background: #e7fbe7;
+  border: 1px solid #7ddc7d;
+  color: #2d572d;
+  padding: 6px 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* Dark mode for .smartwrite-notice */
+body.wp-admin.theme-dark .smartwrite-notice {
+  background: #193d19;
+  border-color: #339933;
+  color: #ccffcc;
+}
+
+/* Dark mode for #smartwrite-output */
+body.wp-admin.theme-dark #smartwrite-ai-box #smartwrite-output {
+  background: #1e1e1e;
+  border-color: #333;
+  color: #ddd;
+}
+
+/* Button spacing inside SmartWrite AI box */
+#smartwrite-ai-box button {
+  margin-top: 8px;
+}
+
+.smartwrite-upgrade-box {
+  border: 1px solid #ccd0d4;
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 6px;
+  background: #f9f9f9;
+}
+
+.smartwrite-upgrade-box h2 {
+  margin-top: 0;
+}
+
+.smartwrite-upgrade-box .button {
+  margin-top: 10px;
+}
+
+/* Dark mode for upgrade box */
+body.wp-admin.theme-dark .smartwrite-upgrade-box {
+  background: #222;
+  border-color: #444;
+  color: #eee;
 }
