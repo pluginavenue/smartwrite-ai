@@ -9,12 +9,24 @@
 
   const SmartWritePanel = () => {
     const [prompt, setPrompt] = useState("");
+    window.smartwriteSetPrompt = setPrompt;
     const [output, setOutput] = useState("");
     const [loading, setLoading] = useState(false);
     const [lastAction, setLastAction] = useState(""); // 'generate' or 'meta'
     const [copied, setCopied] = useState(false);
-    const [insertNotice, setInsertNotice] = useState(false); // ✅ new
+    const [insertNotice, setInsertNotice] = useState(false);
 
+    // ✅ Listen for SmartWrite Pro prompt updates
+    wp.element.useEffect(() => {
+      const handler = (e) => {
+        if (e.detail?.prompt) {
+          setPrompt(e.detail.prompt);
+        }
+      };
+      document.addEventListener("smartwrite-pro-update", handler);
+      return () =>
+        document.removeEventListener("smartwrite-pro-update", handler);
+    }, []);
     const generateContent = () => {
       setLoading(true);
       setOutput("");
@@ -90,7 +102,7 @@
             content: output,
           })
         );
-        setInsertNotice(true); // ✅ show success
+        setInsertNotice(true);
         setTimeout(() => setInsertNotice(false), 2000);
       } catch (err) {
         console.error("Insert failed:", err);
@@ -126,82 +138,95 @@
     };
 
     const content = createElement(
-      PanelBody,
-      { title: "SmartWrite AI", initialOpen: true },
-      createElement(TextareaControl, {
-        label: "Prompt",
-        value: prompt,
-        onChange: (value) => setPrompt(value),
-        __nextHasNoMarginBottom: true,
-      }),
+      "div",
+      null,
+
       createElement(
-        "div",
-        { style: { display: "flex", gap: "8px", marginTop: "10px" } },
-        createElement(
-          Button,
-          {
-            isPrimary: true,
-            onClick: generateContent,
-            disabled: loading || !prompt,
-          },
-          "Generate"
-        )
-      ),
-      createElement(
-        "div",
-        { style: { marginTop: "10px" } },
-        createElement(
-          Button,
-          {
-            isSecondary: true,
-            onClick: suggestMetaDescription,
-            disabled: loading,
-          },
-          "Suggest Meta Description"
-        )
-      ),
-      loading && createElement(Spinner, null),
-      output &&
+        PanelBody,
+        { title: "SmartWrite AI", initialOpen: true },
+
+        createElement(TextareaControl, {
+          label: "Prompt",
+          value: prompt,
+          onChange: (value) => setPrompt(value),
+          __nextHasNoMarginBottom: true,
+        }),
+
         createElement(
           "div",
-          { style: { marginTop: "15px" } },
+          { style: { display: "flex", gap: "8px", marginTop: "10px" } },
+          createElement(
+            Button,
+            {
+              isPrimary: true,
+              onClick: generateContent,
+              disabled: loading || !prompt,
+            },
+            "Generate"
+          )
+        ),
+
+        createElement(
+          "div",
+          { style: { marginTop: "10px" } },
+          createElement(
+            Button,
+            {
+              isSecondary: true,
+              onClick: suggestMetaDescription,
+              disabled: loading,
+            },
+            "Suggest Meta Description"
+          )
+        ),
+
+        loading && createElement(Spinner, null),
+
+        output &&
           createElement(
             "div",
-            {
-              style: {
-                whiteSpace: "pre-wrap",
-                background: "#f3f4f6",
-                padding: "10px",
-                borderRadius: "4px",
-                marginBottom: "10px",
-              },
-            },
-            output
-          ),
-          lastAction === "meta"
-            ? createElement(
-                Button,
-                {
-                  isSecondary: true,
-                  onClick: () => copyToClipboard(output),
-                },
-                copied ? "Copied!" : "Copy Meta Description"
-              )
-            : createElement(
-                Button,
-                {
-                  isSecondary: true,
-                  onClick: insertIntoEditor,
-                },
-                "Insert into Editor"
-              ),
-          insertNotice &&
+            { style: { marginTop: "15px" } },
             createElement(
               "div",
-              { className: "smartwrite-notice" },
-              "✅ Content inserted into editor!"
-            )
-        )
+              {
+                style: {
+                  whiteSpace: "pre-wrap",
+                  background: "#f3f4f6",
+                  padding: "10px",
+                  borderRadius: "4px",
+                  marginBottom: "10px",
+                },
+              },
+              output
+            ),
+            lastAction === "meta"
+              ? createElement(
+                  Button,
+                  {
+                    isSecondary: true,
+                    onClick: () => copyToClipboard(output),
+                  },
+                  copied ? "Copied!" : "Copy Meta Description"
+                )
+              : createElement(
+                  Button,
+                  {
+                    isSecondary: true,
+                    onClick: insertIntoEditor,
+                  },
+                  "Insert into Editor"
+                ),
+            insertNotice &&
+              createElement(
+                "div",
+                { className: "smartwrite-notice" },
+                "✅ Content inserted into editor!"
+              )
+          )
+      ),
+
+      // 🔌 Pro UI mount point (outside PanelBody)
+      createElement("div", { id: "smartwrite-pro-ui" })
     );
 
     return createElement(
